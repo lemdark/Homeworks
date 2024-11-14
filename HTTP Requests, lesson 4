@@ -1,0 +1,81 @@
+import requests
+import hashlib
+import re
+
+def post_content():
+  url = "https://www.lejobadequat.com/emplois"
+  payload = {
+   "action":"facetwp_refresh",
+   "data":{
+      "facets":{
+         "recherche":[
+
+         ],
+         "ou":[
+
+         ],
+         "type_de_contrat":[
+
+         ],
+         "fonction":[
+
+         ],
+         "load_more":[
+            1
+         ]
+      },
+      "frozen_facets":{
+         "ou":"hard"
+      },
+      "http_params":{
+         "get":[
+
+         ],
+         "uri":"emplois",
+         "url_vars":[
+
+         ]
+      },
+      "template":"wp",
+      "extras":{
+         "counts":True,
+         "sort":"default"
+      },
+      "soft_refresh":1,
+      "is_bfcache":1,
+      "first_load":0,
+      "paged":1
+   }
+}
+  response = requests.post(url, json = payload)
+  print(response.status_code)
+  print(response.text)
+  return response
+
+def get_content():
+  name = hashlib.nd5(url.encode('utf')).hexdigest()
+  print(name)
+
+  try:
+    with open(name, 'r') as f:
+      content = f.read()
+      return content
+
+  except:
+    response = requests.get(url)
+    print('request was sent')
+    with open(name, 'w') as f:
+      f.write(response.text)
+    return response.text
+
+response = post_content()
+
+if response and response.status_code == 200:
+  pattern = r'<h3 class=\\\DjobCard_title m-0\\\D\>\s*.*?h3>'
+  job_titles = re.findall(pattern, response.text)
+  job_titles = [title.replace('<h3 class=\\"jobCard_title m-0\\">', '') for title in job_titles]
+  job_titles = [title.replace('H\\/F<\\/h3>\\n', '') for title in job_titles]
+  print(job_titles)
+
+else:
+    print("No valid response to process.")
